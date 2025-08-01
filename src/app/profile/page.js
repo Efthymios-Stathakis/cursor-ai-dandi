@@ -2,18 +2,41 @@
 
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 
 export default function ProfilePage() {
   const { data: session, status } = useSession();
   const router = useRouter();
+  const [dbUser, setDbUser] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (status === "unauthenticated") {
       router.push("/auth/signin");
     }
   }, [status, router]);
+
+  useEffect(() => {
+    if (session?.user?.email) {
+      fetchUserData();
+    }
+  }, [session]);
+
+  const fetchUserData = async () => {
+    setLoading(true);
+    try {
+      const response = await fetch(`/api/users?email=${encodeURIComponent(session.user.email)}`);
+      if (response.ok) {
+        const data = await response.json();
+        setDbUser(data.user);
+      }
+    } catch (error) {
+      console.error('Error fetching user data:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   if (status === "loading") {
     return (
@@ -100,27 +123,67 @@ export default function ProfilePage() {
                 </div>
               </div>
 
-              {/* Session Information */}
+              {/* Database Information */}
               <div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Session Information</h3>
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">Database Information</h3>
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700">Session Status</label>
-                    <div className="mt-1 flex items-center">
-                      <div className="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
-                      <span className="text-sm text-gray-900">Active</span>
-                    </div>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">Provider</label>
-                    <p className="mt-1 text-sm text-gray-900">Google</p>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">Access Token</label>
-                    <p className="mt-1 text-sm text-gray-900">
-                      {session.accessToken ? "Available" : "Not available"}
+                    <label className="block text-sm font-medium text-gray-700">Database ID</label>
+                    <p className="mt-1 text-sm text-gray-900 font-mono">
+                      {dbUser?.id || (loading ? "Loading..." : "Not available")}
                     </p>
                   </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">Member Since</label>
+                    <p className="mt-1 text-sm text-gray-900">
+                      {dbUser?.created_at ? new Date(dbUser.created_at).toLocaleDateString() : (loading ? "Loading..." : "Not available")}
+                    </p>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">Last Updated</label>
+                    <p className="mt-1 text-sm text-gray-900">
+                      {dbUser?.updated_at ? new Date(dbUser.updated_at).toLocaleDateString() : (loading ? "Loading..." : "Not available")}
+                    </p>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">Database Status</label>
+                    <div className="mt-1 flex items-center">
+                      <div className={`w-2 h-2 rounded-full mr-2 ${dbUser ? 'bg-green-500' : 'bg-gray-400'}`}></div>
+                      <span className="text-sm text-gray-900">
+                        {dbUser ? "Stored in database" : (loading ? "Loading..." : "Not stored")}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Session Information */}
+            <div className="mt-6 pt-6 border-t border-gray-200">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">Session Information</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Session Status</label>
+                  <div className="mt-1 flex items-center">
+                    <div className="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
+                    <span className="text-sm text-gray-900">Active</span>
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Provider</label>
+                  <p className="mt-1 text-sm text-gray-900">Google</p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Access Token</label>
+                  <p className="mt-1 text-sm text-gray-900">
+                    {session.accessToken ? "Available" : "Not available"}
+                  </p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">User ID</label>
+                  <p className="mt-1 text-sm text-gray-900 font-mono">
+                    {session.user?.id || "Not available"}
+                  </p>
                 </div>
               </div>
             </div>
@@ -153,7 +216,10 @@ export default function ProfilePage() {
           <h3 className="text-lg font-semibold text-gray-900 mb-4">About Your Account</h3>
           <div className="text-sm text-gray-600 space-y-2">
             <p>
-              This profile displays information from your Google account. Your data is securely handled through Google's OAuth 2.0 authentication system.
+              This profile displays information from your Google account and our database. Your data is securely handled through Google's OAuth 2.0 authentication system and stored in our Supabase database.
+            </p>
+            <p>
+              When you sign in for the first time, your account information is automatically stored in our database for enhanced functionality and personalization.
             </p>
             <p>
               You can manage your Google account settings, privacy, and security by visiting your Google Account dashboard.
