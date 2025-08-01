@@ -13,13 +13,53 @@ import {
   TrendingUp,
   Users,
   Activity,
+  Play,
+  Loader2,
 } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
 import { useSession, signIn, signOut } from "next-auth/react"
+import { useState } from "react"
 
 export default function LandingPage() {
   const { data: session, status } = useSession();
+  const [apiRequest, setApiRequest] = useState(JSON.stringify({
+    repository: "foneandrew/web-basics-hello-world",
+    branch: "main"
+  }, null, 2));
+  const [apiResponse, setApiResponse] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  const handleApiTest = async () => {
+    setIsLoading(true);
+    setError("");
+    setApiResponse("");
+
+    try {
+      const requestData = JSON.parse(apiRequest);
+      const response = await fetch('/api/github-summarizer/demo', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(requestData),
+      });
+
+      const responseData = await response.json();
+      
+      if (response.ok) {
+        setApiResponse(JSON.stringify(responseData, null, 2));
+      } else {
+        setError(`Error: ${responseData.error || 'Failed to analyze repository'}`);
+      }
+    } catch (err) {
+      setError(`Error: ${err.message}`);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <div className="flex flex-col min-h-screen">
       {/* Header */}
@@ -33,6 +73,11 @@ export default function LandingPage() {
             className="text-sm font-medium hover:underline underline-offset-4"
             href="#features">
             Features
+          </Link>
+          <Link
+            className="text-sm font-medium hover:underline underline-offset-4"
+            href="#try-it-out">
+            Try it out
           </Link>
           <Link
             className="text-sm font-medium hover:underline underline-offset-4"
@@ -213,6 +258,124 @@ export default function LandingPage() {
                   <p className="text-muted-foreground">
                     Analyze contributor networks, community health, issue resolution patterns, and maintainer activity.
                   </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Try it out Section */}
+        <section id="try-it-out" className="w-full py-12 md:py-24 lg:py-32">
+          <div className="container px-4 md:px-6">
+            <div
+              className="flex flex-col items-center justify-center space-y-4 text-center">
+              <div className="space-y-2">
+                <Badge variant="secondary">Try it out</Badge>
+                <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl">
+                  Test Our API Right Now
+                </h2>
+                <p
+                  className="max-w-[900px] text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
+                  Experience the power of our GitHub repository analysis API. Enter a repository name and see the insights in real-time.
+                  <span className="block mt-2 text-sm text-blue-600">
+                    💡 This is a demo version. Sign up to get your own API key for unlimited access!
+                  </span>
+                </p>
+              </div>
+            </div>
+            
+            <div className="mx-auto max-w-6xl mt-12">
+              <div className="grid gap-6 lg:grid-cols-2">
+                {/* Input Section */}
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <h3 className="text-lg font-semibold">API Request</h3>
+                    <p className="text-sm text-muted-foreground">
+                      Enter the repository details in JSON format
+                    </p>
+                  </div>
+                  <div className="relative">
+                    <textarea
+                      value={apiRequest}
+                      onChange={(e) => setApiRequest(e.target.value)}
+                      className="w-full h-64 p-4 font-mono text-sm bg-muted border rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-primary"
+                      placeholder="Enter JSON request..."
+                    />
+                    <div className="absolute top-2 right-2">
+                      <Button
+                        onClick={handleApiTest}
+                        disabled={isLoading}
+                        size="sm"
+                        className="gap-2"
+                      >
+                        {isLoading ? (
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                        ) : (
+                          <Play className="w-4 h-4" />
+                        )}
+                        {isLoading ? "Analyzing..." : "Send Request"}
+                      </Button>
+                    </div>
+                  </div>
+                  {error && (
+                    <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
+                      <p className="text-sm text-red-600">{error}</p>
+                    </div>
+                  )}
+                </div>
+
+                {/* Output Section */}
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <h3 className="text-lg font-semibold">API Response</h3>
+                    <p className="text-sm text-muted-foreground">
+                      View the analysis results
+                    </p>
+                  </div>
+                  <div className="relative">
+                    <textarea
+                      value={apiResponse}
+                      readOnly
+                      className="w-full h-64 p-4 font-mono text-sm bg-muted border rounded-lg resize-none focus:outline-none"
+                      placeholder="Response will appear here..."
+                    />
+                    {apiResponse && (
+                      <div className="absolute top-2 right-2">
+                        <Button
+                          onClick={() => setApiResponse("")}
+                          size="sm"
+                          variant="outline"
+                        >
+                          Clear
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Example Section */}
+              <div className="mt-8 p-6 bg-muted rounded-lg">
+                <h4 className="text-lg font-semibold mb-4">Example Request</h4>
+                <div className="grid gap-4 md:grid-cols-2">
+                  <div>
+                    <p className="text-sm font-medium mb-2">Popular Repositories to Try:</p>
+                    <ul className="space-y-2 text-sm text-muted-foreground">
+                      <li>• <code className="bg-background px-1 py-0.5 rounded">facebook/react</code></li>
+                      <li>• <code className="bg-background px-1 py-0.5 rounded">vercel/next.js</code></li>
+                      <li>• <code className="bg-background px-1 py-0.5 rounded">microsoft/vscode</code></li>
+                      <li>• <code className="bg-background px-1 py-0.5 rounded">tensorflow/tensorflow</code></li>
+                    </ul>
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium mb-2">Request Format:</p>
+                    <pre className="text-xs bg-background p-2 rounded overflow-x-auto">
+{`{
+  "repository": "owner/repo-name",
+  "branch": "main"
+}`}
+                    </pre>
+                  </div>
                 </div>
               </div>
             </div>
