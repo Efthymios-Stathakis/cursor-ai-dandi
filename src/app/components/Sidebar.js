@@ -1,9 +1,11 @@
 "use client";
 import { useState } from "react";
+import { useSession } from "next-auth/react";
 import LoginArea from "./LoginArea";
 
 export default function Sidebar() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const { data: session } = useSession();
 
   return (
     <>
@@ -93,6 +95,21 @@ export default function Sidebar() {
                     Manage API keys
                   </a>
                 </li>
+
+                {/* Profile option - only show when signed in */}
+                {session && (
+                  <li>
+                    <a
+                      href="/profile"
+                      className="flex items-center px-4 py-3 text-gray-700 hover:bg-purple-100 hover:text-purple-700 rounded-lg transition-colors"
+                    >
+                      <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                      </svg>
+                      Profile
+                    </a>
+                  </li>
+                )}
               </ul>
             </nav>
             
