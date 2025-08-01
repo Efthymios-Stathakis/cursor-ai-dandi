@@ -1,7 +1,10 @@
 "use client";
 import Image from "next/image";
+import { useSession } from "next-auth/react";
 
 export default function Home() {
+  const { data: session, status } = useSession();
+
   return (
     <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 relative">
       <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
@@ -13,6 +16,30 @@ export default function Home() {
           height={38}
           priority
         />
+        
+        {/* Welcome Message */}
+        {session && (
+          <div className="text-center sm:text-left">
+            <h1 className="text-2xl font-bold text-gray-900 mb-2">
+              Welcome back, {session.user?.name || session.user?.email}!
+            </h1>
+            <p className="text-gray-600">
+              You're signed in and ready to manage your API keys.
+            </p>
+          </div>
+        )}
+        
+        {!session && status !== "loading" && (
+          <div className="text-center sm:text-left">
+            <h1 className="text-2xl font-bold text-gray-900 mb-2">
+              Welcome to Dandi
+            </h1>
+            <p className="text-gray-600">
+              Sign in to access all features and manage your API keys.
+            </p>
+          </div>
+        )}
+        
         <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
           <li className="mb-2 tracking-[-.01em]">
             Get started by editing{" "}
@@ -25,8 +52,6 @@ export default function Home() {
             Save and see your changes instantly.
           </li>
         </ol>
-
-
       </main>
       <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
         <a

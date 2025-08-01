@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import LoginArea from "./LoginArea";
 
 export default function Sidebar() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -94,6 +95,9 @@ export default function Sidebar() {
                 </li>
               </ul>
             </nav>
+            
+            {/* Login Area */}
+            <LoginArea />
           </div>
         </>
       )}
