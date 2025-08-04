@@ -1,13 +1,34 @@
 import { supabase } from '../supabase';
+import { requireAuth } from '../../../lib/auth.js';
 
 export async function PUT(req, { params }) {
+  const authResult = await requireAuth();
+  
+  if (authResult.error) {
+    return new Response(JSON.stringify({ error: authResult.error }), { status: authResult.status });
+  }
+  
+  const { user } = authResult;
   const { id } = await params;
-  const parsedId = parseInt(id, 10);
   const { name } = await req.json();
+  
+  // First check if the API key belongs to the authenticated user
+  const { data: existingKey, error: checkError } = await supabase
+    .from('api_keys')
+    .select('id')
+    .eq('id', id)
+    .eq('user_id', user.id)
+    .single();
+    
+  if (checkError || !existingKey) {
+    return new Response(JSON.stringify({ error: 'API key not found or access denied.' }), { status: 404 });
+  }
+  
   const { data, error } = await supabase
     .from('api_keys')
     .update({ name })
-    .eq('id', parsedId)
+    .eq('id', id)
+    .eq('user_id', user.id)
     .select()
     .single();
   if (error) {
@@ -20,12 +41,32 @@ export async function PUT(req, { params }) {
 }
 
 export async function DELETE(req, { params }) {
+  const authResult = await requireAuth();
+  
+  if (authResult.error) {
+    return new Response(JSON.stringify({ error: authResult.error }), { status: authResult.status });
+  }
+  
+  const { user } = authResult;
   const { id } = await params;
-  const parsedId = parseInt(id, 10);
+  
+  // First check if the API key belongs to the authenticated user
+  const { data: existingKey, error: checkError } = await supabase
+    .from('api_keys')
+    .select('id')
+    .eq('id', id)
+    .eq('user_id', user.id)
+    .single();
+    
+  if (checkError || !existingKey) {
+    return new Response(JSON.stringify({ error: 'API key not found or access denied.' }), { status: 404 });
+  }
+  
   const { error } = await supabase
     .from('api_keys')
     .delete()
-    .eq('id', parsedId);
+    .eq('id', id)
+    .eq('user_id', user.id);
   if (error) {
     return new Response(JSON.stringify({ error: error.message }), { status: 500 });
   }

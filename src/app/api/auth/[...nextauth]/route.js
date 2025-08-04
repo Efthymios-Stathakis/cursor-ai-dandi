@@ -2,7 +2,7 @@ import NextAuth from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import { createOrUpdateUser } from "../../../lib/userManagement.js";
 
-const handler = NextAuth({
+export const authOptions = {
   providers: [
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID,
@@ -71,6 +71,8 @@ const handler = NextAuth({
     },
   },
   debug: process.env.NEXTAUTH_DEBUG === 'true',
-});
+};
+
+const handler = NextAuth(authOptions);
 
 export { handler as GET, handler as POST }; 

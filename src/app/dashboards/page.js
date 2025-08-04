@@ -1,5 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
 function generateRandomKey() {
   return Math.random().toString(36).substring(2, 18);
@@ -28,6 +30,8 @@ const TrashIcon = () => (
 );
 
 export default function Dashboards() {
+  const { data: session, status } = useSession();
+  const router = useRouter();
   const [apiKeys, setApiKeys] = useState([]);
   const [newKeyName, setNewKeyName] = useState("");
   const [editingKey, setEditingKey] = useState(null);
@@ -40,13 +44,28 @@ export default function Dashboards() {
   const [duplicateError, setDuplicateError] = useState("");
 
   useEffect(() => {
+    if (status === "loading") return;
+    
+    if (!session) {
+      router.push("/auth/signin");
+      return;
+    }
+    
     setLoading(true);
     fetch("/api/keys")
-      .then((res) => res.json())
-      .then((data) => setApiKeys(data))
+      .then((res) => {
+        if (res.status === 401) {
+          router.push("/auth/signin");
+          return;
+        }
+        return res.json();
+      })
+      .then((data) => {
+        if (data) setApiKeys(data);
+      })
       .catch(() => setError("Failed to load API keys."))
       .finally(() => setLoading(false));
-  }, []);
+  }, [session, status, router]);
 
   const handleCreate = async (e) => {
     e.preventDefault();
@@ -63,6 +82,8 @@ export default function Dashboards() {
       const created = await res.json();
       setApiKeys((prev) => [...prev, created]);
       setNewKeyName("");
+    } else if (res.status === 401) {
+      router.push("/auth/signin");
     } else {
       const err = await res.json();
       if (res.status === 409) {
@@ -83,6 +104,8 @@ export default function Dashboards() {
       setApiKeys((prev) => prev.filter((k) => k.id !== id));
       setDeleteSuccess(true);
       setTimeout(() => setDeleteSuccess(false), 2000);
+    } else if (res.status === 401) {
+      router.push("/auth/signin");
     } else {
       setError("Failed to delete API key.");
     }
@@ -107,6 +130,8 @@ export default function Dashboards() {
         prev.map((k) => (k.id === id ? { ...k, name: editingName } : k))
       );
       setEditingKey(null);
+    } else if (res.status === 401) {
+      router.push("/auth/signin");
     } else {
       setError("Failed to update API key.");
     }
@@ -122,6 +147,22 @@ export default function Dashboards() {
     setCopiedId(id);
     setTimeout(() => setCopiedId(null), 1000);
   };
+
+  if (status === "loading") {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-[#f8fafc]">
+        <div className="text-lg">Loading...</div>
+      </div>
+    );
+  }
+
+  if (!session) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-[#f8fafc]">
+        <div className="text-lg">Redirecting to sign in...</div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex flex-col items-center bg-[#f8fafc] py-12 px-2">
