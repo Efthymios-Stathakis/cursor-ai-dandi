@@ -43,11 +43,6 @@ export default function Sidebar() {
       {/* Sidebar */}
       {sidebarOpen && (
         <>
-          {/* Backdrop */}
-          <div 
-            className="fixed inset-0 bg-black bg-opacity-50 z-[9997]"
-            onClick={() => setSidebarOpen(false)}
-          />
           {/* Sidebar */}
           <div className="fixed left-0 top-0 h-full w-64 bg-white shadow-xl flex flex-col pt-28 z-[9998]" style={{ paddingTop: '80px' }}>
             {/* Header */}

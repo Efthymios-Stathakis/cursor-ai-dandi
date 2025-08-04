@@ -68,7 +68,7 @@ export default function LandingPage() {
           <Github className="h-8 w-8 text-primary" />
           <span className="ml-2 text-xl font-bold">Dandy GitHub Analyzer</span>
         </Link>
-        <nav className="ml-auto flex gap-4 sm:gap-6">
+        <nav className="ml-auto flex items-center gap-4 sm:gap-6">
           <Link
             className="text-sm font-medium hover:underline underline-offset-4"
             href="#features">
@@ -90,7 +90,7 @@ export default function LandingPage() {
             About
           </Link>
         </nav>
-        <div className="ml-6 flex gap-2">
+        <div className="ml-6 flex items-center gap-2">
           {session ? (
             <>
               <span className="text-sm text-muted-foreground hidden sm:inline">
@@ -168,9 +168,9 @@ export default function LandingPage() {
                 <div className="relative">
                   <Image
                     alt="GitHub Analytics Dashboard"
-                    className="mx-auto aspect-video overflow-hidden rounded-xl object-cover shadow-2xl"
+                    className="mx-auto rounded-xl shadow-2xl"
                     height="400"
-                    src="/placeholder.svg?height=400&width=600"
+                    src="/GHdashboard.png"
                     width="600" />
                   <div
                     className="absolute inset-0 bg-gradient-to-t from-background/20 to-transparent rounded-xl" />
