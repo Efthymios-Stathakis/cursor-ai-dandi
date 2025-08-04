@@ -186,8 +186,8 @@ export default function LandingPage() {
             <div
               className="flex flex-col items-center justify-center space-y-4 text-center">
               <div className="space-y-2">
-                <Badge variant="secondary">Features</Badge>
-                <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl">
+                <Badge variant="secondary" className="text-blue-600 bg-blue-50 border-blue-200">Features</Badge>
+                <h2 className="text-4xl font-bold tracking-tighter sm:text-6xl lg:text-7xl text-blue-600">
                   Everything You Need to Analyze GitHub Repositories
                 </h2>
                 <p
@@ -265,13 +265,13 @@ export default function LandingPage() {
         </section>
 
         {/* Try it out Section */}
-        <section id="try-it-out" className="w-full py-12 md:py-24 lg:py-32">
+        <section id="try-it-out" className="w-full py-12 md:py-24 lg:py-32 bg-slate-50">
           <div className="container px-4 md:px-6">
             <div
               className="flex flex-col items-center justify-center space-y-4 text-center">
               <div className="space-y-2">
-                <Badge variant="secondary">Try it out</Badge>
-                <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl">
+                <Badge variant="secondary" className="text-blue-600 bg-blue-50 border-blue-200">Try it out</Badge>
+                <h2 className="text-4xl font-bold tracking-tighter sm:text-6xl lg:text-7xl text-blue-600">
                   Test Our API Right Now
                 </h2>
                 <p
@@ -383,13 +383,13 @@ export default function LandingPage() {
         </section>
 
         {/* Pricing Section */}
-        <section id="pricing" className="w-full py-12 md:py-24 lg:py-32">
+        <section id="pricing" className="w-full py-12 md:py-24 lg:py-32 bg-white">
           <div className="container px-4 md:px-6">
             <div
               className="flex flex-col items-center justify-center space-y-4 text-center">
               <div className="space-y-2">
-                <Badge variant="secondary">Pricing</Badge>
-                <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl">Simple, Transparent Pricing</h2>
+                <Badge variant="secondary" className="text-blue-600 bg-blue-50 border-blue-200">Pricing</Badge>
+                <h2 className="text-4xl font-bold tracking-tighter sm:text-6xl lg:text-7xl text-blue-600">Simple, Transparent Pricing</h2>
                 <p
                   className="max-w-[900px] text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
                   Start free and scale as you grow. No hidden fees, no surprises.
@@ -548,7 +548,7 @@ export default function LandingPage() {
             <div
               className="flex flex-col items-center justify-center space-y-4 text-center">
               <div className="space-y-2">
-                <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl">
+                <h2 className="text-4xl font-bold tracking-tighter sm:text-6xl lg:text-7xl text-blue-600">
                   Ready to Analyze Your First Repository?
                 </h2>
                 <p
