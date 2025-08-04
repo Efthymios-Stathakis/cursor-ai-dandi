@@ -18,11 +18,12 @@ import {
 } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
-import { useSession, signIn, signOut } from "next-auth/react"
-import { useState } from "react"
+import { signIn, signOut } from "next-auth/react"
+import { useState, useEffect } from "react"
+import { useAuth } from "./hooks/useAuth.js"
 
 export default function LandingPage() {
-  const { data: session, status } = useSession();
+  const { data: session, status, isAuthenticated } = useAuth();
   const [apiRequest, setApiRequest] = useState(JSON.stringify({
     repository: "foneandrew/web-basics-hello-world",
     branch: "main"
@@ -30,6 +31,15 @@ export default function LandingPage() {
   const [apiResponse, setApiResponse] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+
+  // Check if we just completed email verification
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('verified') === 'true') {
+      // Force a page reload to refresh auth state
+      window.location.href = '/';
+    }
+  }, []);
 
   const handleApiTest = async () => {
     setIsLoading(true);
@@ -57,6 +67,36 @@ export default function LandingPage() {
       setError(`Error: ${err.message}`);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleSignOut = async () => {
+    try {
+      // Clear both custom and NextAuth sessions
+      const response = await fetch('/api/auth/signout', {
+        method: 'POST',
+      });
+      
+      if (response.ok) {
+        // Also call NextAuth signOut to ensure it's properly handled
+        await signOut({ callbackUrl: '/' });
+        
+        // Force a page reload to ensure all state is cleared
+        window.location.reload();
+      } else {
+        // If the API call fails, still try NextAuth signOut
+        await signOut({ callbackUrl: '/' });
+        window.location.reload();
+      }
+    } catch (error) {
+      console.error('Sign out error:', error);
+      // Fallback: try NextAuth signOut and reload
+      try {
+        await signOut({ callbackUrl: '/' });
+      } catch (nextAuthError) {
+        console.error('NextAuth signOut error:', nextAuthError);
+      }
+      window.location.reload();
     }
   };
 
@@ -91,12 +131,12 @@ export default function LandingPage() {
           </Link>
         </nav>
         <div className="ml-6 flex items-center gap-2">
-          {session ? (
+          {isAuthenticated ? (
             <>
               <span className="text-sm text-muted-foreground hidden sm:inline">
-                Welcome, {session.user?.name || session.user?.email}
+                Welcome, {session?.user?.name || session?.user?.email}
               </span>
-              <Button variant="ghost" size="sm" onClick={() => signOut()}>
+              <Button variant="ghost" size="sm" onClick={handleSignOut}>
                 Sign Out
               </Button>
               <Button size="sm" asChild>
@@ -135,7 +175,7 @@ export default function LandingPage() {
                   </p>
                 </div>
                 <div className="flex flex-col gap-2 min-[400px]:flex-row">
-                  {session ? (
+                  {isAuthenticated ? (
                     <Button size="lg" className="gap-2" asChild>
                       <Link href="/dashboards">
                         Go to Dashboard
@@ -428,7 +468,7 @@ export default function LandingPage() {
                   </ul>
                 </CardContent>
                 <CardFooter>
-                  {session ? (
+                  {isAuthenticated ? (
                     <Button className="w-full bg-transparent" variant="outline" asChild>
                       <Link href="/dashboards">Go to Dashboard</Link>
                     </Button>
@@ -479,7 +519,7 @@ export default function LandingPage() {
                   </ul>
                 </CardContent>
                 <CardFooter>
-                  {session ? (
+                  {isAuthenticated ? (
                     <Button className="w-full" asChild>
                       <Link href="/dashboards">Go to Dashboard</Link>
                     </Button>
@@ -527,7 +567,7 @@ export default function LandingPage() {
                   </ul>
                 </CardContent>
                 <CardFooter>
-                  {session ? (
+                  {isAuthenticated ? (
                     <Button className="w-full bg-transparent" variant="outline" asChild>
                       <Link href="/dashboards">Go to Dashboard</Link>
                     </Button>
@@ -557,7 +597,7 @@ export default function LandingPage() {
                 </p>
               </div>
               <div className="flex flex-col gap-2 min-[400px]:flex-row">
-                {session ? (
+                {isAuthenticated ? (
                   <Button size="lg" className="gap-2" asChild>
                     <Link href="/dashboards">
                       <Github className="w-4 h-4" />

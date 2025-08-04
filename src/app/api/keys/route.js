@@ -1,8 +1,8 @@
 import { supabase } from './supabase';
 import { requireAuth } from '../../lib/auth.js';
 
-export async function GET() {
-  const authResult = await requireAuth();
+export async function GET(request) {
+  const authResult = await requireAuth(request);
   
   if (authResult.error) {
     return new Response(JSON.stringify({ error: authResult.error }), { status: authResult.status });
@@ -21,15 +21,15 @@ export async function GET() {
   return Response.json(data);
 }
 
-export async function POST(req) {
-  const authResult = await requireAuth();
+export async function POST(request) {
+  const authResult = await requireAuth(request);
   
   if (authResult.error) {
     return new Response(JSON.stringify({ error: authResult.error }), { status: authResult.status });
   }
   
   const { user } = authResult;
-  const { name, key } = await req.json();
+  const { name, key } = await request.json();
   
   if (!name || !key) {
     return new Response(JSON.stringify({ error: 'Name and key are required.' }), { status: 400 });

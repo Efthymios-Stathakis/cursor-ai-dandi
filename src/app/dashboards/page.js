@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { useSession } from "next-auth/react";
+import { useAuth } from "../hooks/useAuth.js";
 import { useRouter } from "next/navigation";
 import Sidebar from "../components/Sidebar";
 
@@ -31,7 +31,7 @@ const TrashIcon = () => (
 );
 
 export default function Dashboards() {
-  const { data: session, status } = useSession();
+  const { data: session, status, isAuthenticated } = useAuth();
   const router = useRouter();
   const [apiKeys, setApiKeys] = useState([]);
   const [newKeyName, setNewKeyName] = useState("");
@@ -47,7 +47,7 @@ export default function Dashboards() {
   useEffect(() => {
     if (status === "loading") return;
     
-    if (!session) {
+    if (!isAuthenticated) {
       router.push("/auth/signin");
       return;
     }
@@ -66,7 +66,7 @@ export default function Dashboards() {
       })
       .catch(() => setError("Failed to load API keys."))
       .finally(() => setLoading(false));
-  }, [session, status, router]);
+  }, [session, status, isAuthenticated, router]);
 
   const handleCreate = async (e) => {
     e.preventDefault();
@@ -157,7 +157,7 @@ export default function Dashboards() {
     );
   }
 
-  if (!session) {
+  if (!isAuthenticated) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-[#f8fafc]">
         <div className="text-lg">Redirecting to sign in...</div>

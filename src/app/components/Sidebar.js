@@ -1,11 +1,11 @@
 "use client";
 import { useState } from "react";
-import { useSession } from "next-auth/react";
+import { useAuth } from "../hooks/useAuth.js";
 import LoginArea from "./LoginArea";
 
 export default function Sidebar() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const { data: session } = useSession();
+  const { data: session, isAuthenticated } = useAuth();
 
   return (
     <>
@@ -97,7 +97,7 @@ export default function Sidebar() {
                 </li>
 
                 {/* Profile option - only show when signed in */}
-                {session && (
+                {isAuthenticated && (
                   <li>
                     <a
                       href="/profile"

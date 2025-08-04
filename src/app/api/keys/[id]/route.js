@@ -1,8 +1,8 @@
 import { supabase } from '../supabase';
 import { requireAuth } from '../../../lib/auth.js';
 
-export async function PUT(req, { params }) {
-  const authResult = await requireAuth();
+export async function PUT(request, { params }) {
+  const authResult = await requireAuth(request);
   
   if (authResult.error) {
     return new Response(JSON.stringify({ error: authResult.error }), { status: authResult.status });
@@ -10,7 +10,7 @@ export async function PUT(req, { params }) {
   
   const { user } = authResult;
   const { id } = await params;
-  const { name } = await req.json();
+  const { name } = await request.json();
   
   // First check if the API key belongs to the authenticated user
   const { data: existingKey, error: checkError } = await supabase
@@ -40,8 +40,8 @@ export async function PUT(req, { params }) {
   return Response.json(data);
 }
 
-export async function DELETE(req, { params }) {
-  const authResult = await requireAuth();
+export async function DELETE(request, { params }) {
+  const authResult = await requireAuth(request);
   
   if (authResult.error) {
     return new Response(JSON.stringify({ error: authResult.error }), { status: authResult.status });

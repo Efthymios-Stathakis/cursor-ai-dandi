@@ -1,11 +1,42 @@
 "use client";
 
-import { useSession, signIn, signOut } from "next-auth/react";
-import Image from "next/image";
+import { signIn, signOut } from "next-auth/react";
+import { useAuth } from "../hooks/useAuth.js";
 import Link from "next/link";
+import Image from "next/image";
 
 export default function LoginArea() {
-  const { data: session, status } = useSession();
+  const { data: session, status, isAuthenticated } = useAuth();
+
+  const handleSignOut = async () => {
+    try {
+      // Clear both custom and NextAuth sessions
+      const response = await fetch('/api/auth/signout', {
+        method: 'POST',
+      });
+      
+      if (response.ok) {
+        // Also call NextAuth signOut to ensure it's properly handled
+        await signOut({ callbackUrl: '/' });
+        
+        // Force a page reload to ensure all state is cleared
+        window.location.reload();
+      } else {
+        // If the API call fails, still try NextAuth signOut
+        await signOut({ callbackUrl: '/' });
+        window.location.reload();
+      }
+    } catch (error) {
+      console.error('Sign out error:', error);
+      // Fallback: try NextAuth signOut and reload
+      try {
+        await signOut({ callbackUrl: '/' });
+      } catch (nextAuthError) {
+        console.error('NextAuth signOut error:', nextAuthError);
+      }
+      window.location.reload();
+    }
+  };
 
   if (status === "loading") {
     return (
@@ -21,7 +52,7 @@ export default function LoginArea() {
     );
   }
 
-  if (session) {
+  if (isAuthenticated && session) {
     return (
       <div className="p-4 border-t bg-gray-50">
         <div className="flex items-center space-x-3 mb-3">
@@ -64,7 +95,7 @@ export default function LoginArea() {
         </div>
         
         <button
-          onClick={() => signOut()}
+          onClick={handleSignOut}
           className="w-full px-3 py-2 text-sm text-red-600 bg-red-50 border border-red-200 rounded-md hover:bg-red-100 transition-colors"
         >
           Sign Out

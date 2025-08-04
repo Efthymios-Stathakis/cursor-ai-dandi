@@ -12,29 +12,28 @@ export const authOptions = {
   callbacks: {
     async signIn({ user, account, profile }) {
       try {
-        // Store user data in Supabase when they sign in
-        const userData = {
-          name: user.name,
-          email: user.email,
-          image: user.image,
-        };
+        // Handle Google OAuth
+        if (account?.provider === "google") {
+          const userData = {
+            name: user.name,
+            email: user.email,
+            image: user.image,
+          };
 
-        const { user: dbUser, isNewUser } = await createOrUpdateUser(userData);
-        
-        // Add the database user ID to the session
-        user.id = dbUser.id;
-        
-        console.log(isNewUser ? 'New user created in database' : 'Existing user updated in database');
-        
+          const { user: dbUser, isNewUser } = await createOrUpdateUser(userData);
+          user.id = dbUser.id;
+          
+          console.log(isNewUser ? 'New user created in database' : 'Existing user updated in database');
+          return true;
+        }
+
         return true;
       } catch (error) {
         console.error('Error storing user data:', error);
-        // Still allow sign in even if database storage fails
         return true;
       }
     },
     async jwt({ token, user, account }) {
-      // Persist the OAuth access_token and user ID to the token
       if (account) {
         token.accessToken = account.access_token;
       }
@@ -44,7 +43,6 @@ export const authOptions = {
       return token;
     },
     async session({ session, token }) {
-      // Send properties to the client, like an access_token from a provider
       session.accessToken = token.accessToken;
       session.user.id = token.id;
       return session;

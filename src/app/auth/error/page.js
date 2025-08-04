@@ -1,6 +1,9 @@
 "use client";
 
 import { useSearchParams } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { AlertTriangle, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 
 export default function AuthError() {
@@ -9,102 +12,53 @@ export default function AuthError() {
 
   const getErrorMessage = (error) => {
     switch (error) {
-      case "Configuration":
-        return "There is a problem with the server configuration.";
-      case "AccessDenied":
-        return "You do not have permission to sign in.";
-      case "Verification":
-        return "The verification token has expired or has already been used.";
-      case "OAuthCallbackError":
-        return "There was an error during the OAuth callback process.";
-      case "OAuthCreateAccount":
-        return "Could not create OAuth provider user in the database.";
-      case "OAuthAccountNotLinked":
-        return "Email on the account already exists with different provider.";
-      case "EmailCreateAccount":
-        return "Could not create email provider user in the database.";
-      case "Callback":
-        return "There was an error during the callback process.";
-      case "OAuthSignin":
-        return "There was an error during the OAuth signin process.";
-      case "EmailSignin":
-        return "There was an error during the email signin process.";
-      case "CredentialsSignin":
-        return "There was an error during the credentials signin process.";
-      case "SessionRequired":
-        return "Please sign in to access this page.";
+      case "InvalidVerificationLink":
+        return "The verification link is invalid or missing required parameters.";
+      case "InvalidToken":
+        return "The verification token is invalid or has expired.";
+      case "TokenExpired":
+        return "The verification link has expired. Please request a new one.";
+      case "UserNotFound":
+        return "User account not found. Please sign up first.";
+      case "SessionCreationFailed":
+        return "Failed to create your session. Please try again.";
+      case "VerificationFailed":
+        return "Verification failed. Please try again or contact support.";
       default:
-        return "An unexpected error occurred during authentication.";
+        return "An authentication error occurred. Please try again.";
     }
   };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
-        <div>
-          <div className="mx-auto h-12 w-12 flex items-center justify-center rounded-full bg-red-100">
-            <svg className="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
-            </svg>
+      <Card className="max-w-md w-full">
+        <CardHeader>
+          <div className="flex items-center justify-center mb-4">
+            <AlertTriangle className="h-12 w-12 text-red-500" />
           </div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+          <CardTitle className="text-center text-xl">
             Authentication Error
-          </h2>
-          <p className="mt-2 text-center text-sm text-gray-600">
+          </CardTitle>
+          <CardDescription className="text-center">
             {getErrorMessage(error)}
-          </p>
-        </div>
-        
-        <div className="mt-8 space-y-4">
-          <div className="bg-red-50 border border-red-200 rounded-md p-4">
-            <div className="flex">
-              <div className="flex-shrink-0">
-                <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-                </svg>
-              </div>
-              <div className="ml-3">
-                <h3 className="text-sm font-medium text-red-800">
-                  Error Details
-                </h3>
-                <div className="mt-2 text-sm text-red-700">
-                  <p>Error Code: {error || 'Unknown'}</p>
-                  <p className="mt-1">
-                    This error typically occurs due to:
-                  </p>
-                  <ul className="mt-1 list-disc list-inside space-y-1">
-                    <li>Missing or incorrect environment variables</li>
-                    <li>Network connectivity issues</li>
-                    <li>Google OAuth configuration problems</li>
-                    <li>Session or cookie issues</li>
-                  </ul>
-                </div>
-              </div>
-            </div>
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="text-center space-y-2">
+            <Button asChild className="w-full">
+              <Link href="/auth/signin">
+                <ArrowLeft className="w-4 h-4 mr-2" />
+                Back to Sign In
+              </Link>
+            </Button>
+            <Button variant="outline" asChild className="w-full">
+              <Link href="/">
+                Back to Home
+              </Link>
+            </Button>
           </div>
-          
-          <div className="flex flex-col space-y-3">
-            <Link
-              href="/auth/signin"
-              className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-            >
-              Try Again
-            </Link>
-            <Link
-              href="/"
-              className="w-full flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
-            >
-              Back to Home
-            </Link>
-          </div>
-        </div>
-        
-        <div className="mt-6 text-center">
-          <p className="text-xs text-gray-500">
-            If this problem persists, please check your environment variables and Google OAuth configuration.
-          </p>
-        </div>
-      </div>
+        </CardContent>
+      </Card>
     </div>
   );
 } 

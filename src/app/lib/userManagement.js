@@ -1,4 +1,4 @@
-import { supabase } from '../api/keys/supabase.js';
+import { supabase } from './supabaseClient.js';
 
 export async function createOrUpdateUser(userData) {
   try {
