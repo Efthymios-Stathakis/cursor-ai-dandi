@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import Sidebar from "../components/Sidebar";
 
 function generateRandomKey() {
   return Math.random().toString(36).substring(2, 18);
@@ -165,125 +166,128 @@ export default function Dashboards() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col items-center bg-[#f8fafc] py-12 px-2">
-      {deleteSuccess && (
-        <div
-          className="fixed top-6 left-1/2 -translate-x-1/2 text-white px-6 py-3 rounded shadow-lg z-50 animate-fade-in"
-          style={{ backgroundColor: '#dc2626', backgroundImage: 'none' }}
-        >
-          API key deleted successfully
-        </div>
-      )}
-      {duplicateError && (
-        <div
-          className="fixed top-20 left-1/2 -translate-x-1/2 text-white px-6 py-3 rounded shadow-lg z-50 animate-fade-in"
-          style={{ backgroundColor: '#dc2626', backgroundImage: 'none' }}
-        >
-          {duplicateError}
-        </div>
-      )}
-      <div className="w-full max-w-4xl bg-white rounded-2xl shadow-lg p-0">
-        {/* Gradient header */}
-        <div className="rounded-t-2xl p-8 pb-6" style={{ background: 'linear-gradient(90deg, #e0c3fc 0%, #8ec5fc 100%)' }}>
-          <h2 className="text-2xl font-bold mb-2 text-gray-900">API Keys</h2>
-          <p className="mb-0 text-gray-700 text-sm">
-            The key is used to authenticate your requests to the Research API. To learn more, see the documentation page.
-          </p>
-        </div>
-        <div className="p-8 pt-4">
-          <form onSubmit={handleCreate} className="flex gap-2 mb-6">
-            <input
-              type="text"
-              className="border rounded px-3 py-2 flex-1"
-              placeholder="API Key Name"
-              value={newKeyName}
-              onChange={(e) => setNewKeyName(e.target.value)}
-              required
-            />
-            <button
-              type="submit"
-              className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-              disabled={loading}
-            >
-              +
-            </button>
-          </form>
-          {error && <div className="text-red-500 mb-4">{error}</div>}
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-separate border-spacing-y-2">
-              <thead>
-                <tr className="text-gray-500 text-xs uppercase">
-                  <th className="py-2">Name</th>
-                  <th className="py-2">Type</th>
-                  <th className="py-2">Usage</th>
-                  <th className="py-2">Key</th>
-                  <th className="py-2">Options</th>
-                </tr>
-              </thead>
-              <tbody>
-                {apiKeys.length === 0 ? (
-                  <tr>
-                    <td colSpan={5} className="text-center text-gray-400 py-6">No API keys found.</td>
+    <div className="min-h-screen bg-[#f8fafc]">
+      <Sidebar />
+      <div className="flex flex-col items-center py-12 px-2">
+        {deleteSuccess && (
+          <div
+            className="fixed top-6 left-1/2 -translate-x-1/2 text-white px-6 py-3 rounded shadow-lg z-50 animate-fade-in"
+            style={{ backgroundColor: '#dc2626', backgroundImage: 'none' }}
+          >
+            API key deleted successfully
+          </div>
+        )}
+        {duplicateError && (
+          <div
+            className="fixed top-20 left-1/2 -translate-x-1/2 text-white px-6 py-3 rounded shadow-lg z-50 animate-fade-in"
+            style={{ backgroundColor: '#dc2626', backgroundImage: 'none' }}
+          >
+            {duplicateError}
+          </div>
+        )}
+        <div className="w-full max-w-4xl bg-white rounded-2xl shadow-lg p-0">
+          {/* Gradient header */}
+          <div className="rounded-t-2xl p-8 pb-6" style={{ background: 'linear-gradient(90deg, #e0c3fc 0%, #8ec5fc 100%)' }}>
+            <h2 className="text-2xl font-bold mb-2 text-gray-900">API Keys</h2>
+            <p className="mb-0 text-gray-700 text-sm">
+              The key is used to authenticate your requests to the Research API. To learn more, see the documentation page.
+            </p>
+          </div>
+          <div className="p-8 pt-4">
+            <form onSubmit={handleCreate} className="flex gap-2 mb-6">
+              <input
+                type="text"
+                className="border rounded px-3 py-2 flex-1"
+                placeholder="API Key Name"
+                value={newKeyName}
+                onChange={(e) => setNewKeyName(e.target.value)}
+                required
+              />
+              <button
+                type="submit"
+                className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                disabled={loading}
+              >
+                +
+              </button>
+            </form>
+            {error && <div className="text-red-500 mb-4">{error}</div>}
+            <div className="overflow-x-auto">
+              <table className="w-full text-left border-separate border-spacing-y-2">
+                <thead>
+                  <tr className="text-gray-500 text-xs uppercase">
+                    <th className="py-2">Name</th>
+                    <th className="py-2">Type</th>
+                    <th className="py-2">Usage</th>
+                    <th className="py-2">Key</th>
+                    <th className="py-2">Options</th>
                   </tr>
-                ) : (
-                  apiKeys.map((key) => (
-                    <tr key={key.id} className="bg-[#f9fafb] rounded-lg">
-                      <td className="py-2 font-medium">{editingKey === key.id ? (
-                        <input
-                          className="border rounded px-2 py-1"
-                          value={editingName}
-                          onChange={(e) => setEditingName(e.target.value)}
-                          onKeyDown={(e) => {
-                            if (e.key === 'Enter') {
-                              e.preventDefault();
-                              handleUpdate(key.id);
-                            }
-                          }}
-                          autoFocus
-                        />
-                      ) : (
-                        key.name
-                      )}</td>
-                      <td className="py-2 text-xs text-gray-500">dev</td>
-                      <td className="py-2 text-xs text-gray-500">0</td>
-                      <td className="py-2 font-mono text-xs">
-                        <span className="inline-block bg-[#f1f5f9] rounded px-3 py-1">
-                          {showKey[key.id] ? key.key : key.key.slice(0, 8) + "-" + "*".repeat(16)}
-                        </span>
-                      </td>
-                      <td className="py-2 flex gap-2 items-center">
-                        <button type="button" title={showKey[key.id] ? "Hide" : "Show"} onClick={() => handleShowKey(key.id)} className="hover:text-blue-600">
-                          <EyeIcon shown={showKey[key.id]} />
-                        </button>
-                        <button type="button" title="Copy" onClick={() => handleCopy(key.key, key.id)} className="hover:text-blue-600">
-                          <CopyIcon />
-                          {copiedId === key.id && <span className="ml-1 text-xs text-green-600">Copied!</span>}
-                        </button>
-                        {editingKey === key.id ? (
-                          <>
-                            <button type="button" title="Save" onClick={() => handleUpdate(key.id)} className="hover:text-green-600">
-                              <EditIcon />
-                            </button>
-                            <button type="button" title="Cancel" onClick={() => setEditingKey(null)} className="hover:text-gray-600">
-                              Cancel
-                            </button>
-                          </>
-                        ) : (
-                          <>
-                            <button type="button" title="Edit" onClick={() => startEdit(key)} className="hover:text-yellow-600">
-                              <EditIcon />
-                            </button>
-                            <button type="button" title="Delete" onClick={() => handleDelete(key.id)} className="hover:text-red-600">
-                              <TrashIcon />
-                            </button>
-                          </>
-                        )}
-                      </td>
+                </thead>
+                <tbody>
+                  {apiKeys.length === 0 ? (
+                    <tr>
+                      <td colSpan={5} className="text-center text-gray-400 py-6">No API keys found.</td>
                     </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
+                  ) : (
+                    apiKeys.map((key) => (
+                      <tr key={key.id} className="bg-[#f9fafb] rounded-lg">
+                        <td className="py-2 font-medium">{editingKey === key.id ? (
+                          <input
+                            className="border rounded px-2 py-1"
+                            value={editingName}
+                            onChange={(e) => setEditingName(e.target.value)}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter') {
+                                e.preventDefault();
+                                handleUpdate(key.id);
+                              }
+                            }}
+                            autoFocus
+                          />
+                        ) : (
+                          key.name
+                        )}</td>
+                        <td className="py-2 text-xs text-gray-500">dev</td>
+                        <td className="py-2 text-xs text-gray-500">0</td>
+                        <td className="py-2 font-mono text-xs">
+                          <span className="inline-block bg-[#f1f5f9] rounded px-3 py-1">
+                            {showKey[key.id] ? key.key : key.key.slice(0, 8) + "-" + "*".repeat(16)}
+                          </span>
+                        </td>
+                        <td className="py-2 flex gap-2 items-center">
+                          <button type="button" title={showKey[key.id] ? "Hide" : "Show"} onClick={() => handleShowKey(key.id)} className="hover:text-blue-600">
+                            <EyeIcon shown={showKey[key.id]} />
+                          </button>
+                          <button type="button" title="Copy" onClick={() => handleCopy(key.key, key.id)} className="hover:text-blue-600">
+                            <CopyIcon />
+                            {copiedId === key.id && <span className="ml-1 text-xs text-green-600">Copied!</span>}
+                          </button>
+                          {editingKey === key.id ? (
+                            <>
+                              <button type="button" title="Save" onClick={() => handleUpdate(key.id)} className="hover:text-green-600">
+                                <EditIcon />
+                              </button>
+                              <button type="button" title="Cancel" onClick={() => setEditingKey(null)} className="hover:text-gray-600">
+                                Cancel
+                              </button>
+                            </>
+                          ) : (
+                            <>
+                              <button type="button" title="Edit" onClick={() => startEdit(key)} className="hover:text-yellow-600">
+                                <EditIcon />
+                              </button>
+                              <button type="button" title="Delete" onClick={() => handleDelete(key.id)} className="hover:text-red-600">
+                                <TrashIcon />
+                              </button>
+                            </>
+                          )}
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       </div>
